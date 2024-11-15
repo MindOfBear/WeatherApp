@@ -6,7 +6,7 @@ export const getWeatherEmoji = (condition) => {
         return '🌞';
       case 'few clouds':
         return '🌤️';
-      case 'scattered clouds':
+      case 'overcast clouds':
         return '🌥️';
       case 'broken clouds':
         return '☁️';

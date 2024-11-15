@@ -1,5 +1,5 @@
 // src/components/WeatherComponent.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../axiosConfig';
 import { getWeatherEmoji } from '../utils/weatherHelper.js';
 
@@ -59,6 +59,10 @@ function WeatherComponent() {
     }
     return null;
   };
+  useEffect(() => {
+    handleLocation();
+    // eslint-disable-next-line
+  }, []);
 
   const displayTemp = getTemperature();
   const unit = metricSystem === 'metric' ? 'C' : 'F';
@@ -66,7 +70,7 @@ function WeatherComponent() {
 
   return (
     <div className='h-screen flex justify-center items-center bg-orange-50'>
-      <div className='bg-slate-200  rounded-3xl p-1 shadow-sm border-2 border-slate-400'>
+      <div className='bg-slate-200 rounded-3xl p-1 shadow-sm border-2 border-slate-400'>
         
         {weatherData ? (
           <h1 className='text-center p-3 font-sans text-3xl'>Weather in {weatherData.name}</h1>
@@ -97,38 +101,42 @@ function WeatherComponent() {
             </button>
           </div>
         </div>
-        {weatherData ? (
-          weatherData && (
-            <div className='grid grid-cols-2 gap-2 items-center text-center font-sans text-lg'>
-              
-              <div className="group bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-4xl relative"
-              onClick={toggleMetricSystem}
-            >
-              <p>{displayTemp !== null ? displayTemp.toFixed(1) : '--'}°{unit}</p>
-              <p className="absolute inset-0 justify-center text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Click to change
-              </p>
-            </div>
-    
-              <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center items-center justify-center text-xl flex'>
-                <p className=''>{weatherData.weather[0].description.charAt(0).toUpperCase() + weatherData.weather[0].description.slice(1)}
-                  <p className='text-4xl'>{getWeatherEmoji(weatherData.weather[0].description)}</p>    
-                </p>         
+        <div className='relative'>
+          {weatherData ? (
+            weatherData && (
+              <div className='grid grid-cols-2 gap-2 items-center text-center font-sans text-lg'>
+                
+                <div className="group bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-4xl relative"
+                onClick={toggleMetricSystem}
+              >
+                <p>{displayTemp !== null ? displayTemp.toFixed(1) : '--'}°{unit}</p>
+                <p className="absolute inset-0  justify-center text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  Click to change
+                </p>
               </div>
-    
-              <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-xl'>
-                <p>Humidity <br/> {weatherData.main?.humidity}%</p>
+      
+                <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center items-center justify-center text-xl flex'>
+                  <p className=''>{weatherData.weather[0].description.charAt(0).toUpperCase() + weatherData.weather[0].description.slice(1)}
+                    <p className='text-4xl'>{getWeatherEmoji(weatherData.weather[0].description)}</p>    
+                  </p>         
+                </div>
+      
+                <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-xl'>
+                  <p>Humidity <br/> {weatherData.main?.humidity}%</p>
+                </div>
+      
+                <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-xl'>
+                  <p>Wind Speed <br/> {weatherData.wind?.speed} m/s</p>
+                </div>
+                <p className='mt-5'></p>
               </div>
-    
-              <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-xl'>
-                <p>Wind Speed <br/> {weatherData.wind?.speed} m/s</p>
-              </div>
-    
-            </div>
-            )
-        ) : (
-          <div className='text-center text-slate-500 p-2 text-lg'>Please select a location!</div>
-        )}
+              )
+          ) : (
+            <p className='text-center pb-10 text-slate-600'>Enter a city or allow acces to location!</p>
+          )}
+          <p className='absolute bottom-0 w-[100%] text-center pr-2 opacity-80 text-slate-800 text-sm'>Weather provider is OpenWeather©</p>
+        </div>
+
         {/* toDo: load metadata dynamic */}
 
       </div>
