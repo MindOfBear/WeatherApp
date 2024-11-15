@@ -6,6 +6,25 @@ function WeatherComponent() {
   const [city, setCity] = useState('');
   const [weatherData, setWeatherData] = useState(null);
 
+  const handleLocation = () => {
+    navigator.geolocation.getCurrentPosition((position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      api.get(`/weather/coordinates/${latitude}/${longitude}`)
+        .then((response) => {
+          setWeatherData(response.data);
+        })
+        .catch((error) => {
+          setWeatherData(null);
+        });
+  
+      console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+    }, (error) => {
+      console.error('Error getting location:', error);
+    });
+  };
+
   const handleInputChange = (e) => {
     setCity(e.target.value);
   };
@@ -23,7 +42,13 @@ function WeatherComponent() {
   return (
     <div className='h-screen flex justify-center items-center bg-orange-50'>
       <div className='bg-slate-200  rounded-3xl p-1 shadow-sm border-2 border-slate-400'>
-        <h1 className='text-center p-3 font-sans text-4xl'>Weather</h1>
+        
+        {weatherData ? (
+          <h1 className='text-center p-3 font-sans text-3xl'>Weather in {weatherData.name}</h1>
+        ):(
+          <h1 className='text-center p-3 font-sans text-4xl'>Weather</h1>
+        )}
+        
         <div className="grid grid-cols-2 items-center gap-4 p-4">
           <input 
             className="p-2 sm:w-[140%] w-[120%] rounded-3xl border border-gray-300 justify-self-start"
@@ -41,7 +66,7 @@ function WeatherComponent() {
             </button>
             <button 
               className="bg-blue-200 border border-slate-400 rounded-2xl p-2 w-10"
-              onClick={getWeather}
+              onClick={handleLocation}
             >
               🌍
             </button>
