@@ -1,12 +1,15 @@
 // src/components/WeatherComponent.js
 import React, { useState } from 'react';
 import api from '../axiosConfig';
+import { getWeatherEmoji } from '../utils/weatherHelper.js';
 
 function WeatherComponent() {
   const [city, setCity] = useState('');
   const [weatherData, setWeatherData] = useState(null);
+  const [metricSystem, setMetricSystem] = useState('metric');
 
   const handleLocation = () => {
+    resetInput();
     navigator.geolocation.getCurrentPosition((position) => {
       const latitude = position.coords.latitude;
       const longitude = position.coords.longitude;
@@ -29,6 +32,14 @@ function WeatherComponent() {
     setCity(e.target.value);
   };
 
+  const resetInput = () => {
+    setCity('');
+  }
+
+  const toggleMetricSystem = () => {
+    setMetricSystem(metricSystem === 'metric' ? 'imperial' : 'metric');
+  }
+
   const getWeather = () => {
     api.get(`/weather/${city}`)
       .then((response) => {
@@ -38,6 +49,20 @@ function WeatherComponent() {
         setWeatherData(null);
       });
   };
+
+  const getTemperature = () => {
+    const temp = weatherData?.main?.temp;
+    if (temp !== undefined) {
+      return metricSystem === 'metric' 
+        ? temp 
+        : (temp * 9/5) + 32;
+    }
+    return null;
+  };
+
+  const displayTemp = getTemperature();
+  const unit = metricSystem === 'metric' ? 'C' : 'F';
+
 
   return (
     <div className='h-screen flex justify-center items-center bg-orange-50'>
@@ -59,13 +84,13 @@ function WeatherComponent() {
           />
           <div className="flex justify-end gap-2">
             <button 
-              className="bg-blue-200 border border-slate-400 rounded-2xl p-2"
+              className="bg-blue-200 border border-slate-400 rounded-2xl p-2 hover:bg-blue-300"
               onClick={getWeather}
             >
               Search
             </button>
             <button 
-              className="bg-blue-200 border border-slate-400 rounded-2xl p-2 w-10"
+              className="bg-blue-200 border border-slate-400 rounded-2xl p-2 w-10 hover:bg-blue-300"
               onClick={handleLocation}
             >
               🌍
@@ -76,12 +101,19 @@ function WeatherComponent() {
           weatherData && (
             <div className='grid grid-cols-2 gap-2 items-center text-center font-sans text-lg'>
               
-              <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-4xl'>
-                <p>{weatherData.main?.temp}°C</p>
-              </div>
+              <div className="group bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-4xl relative"
+              onClick={toggleMetricSystem}
+            >
+              <p>{displayTemp !== null ? displayTemp.toFixed(1) : '--'}°{unit}</p>
+              <p className="absolute inset-0 justify-center text-sm text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                Click to change
+              </p>
+            </div>
     
-              <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-xl'>
-                <p>Conditions <br/> {weatherData.weather?.[0]?.description}</p>
+              <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center items-center justify-center text-xl flex'>
+                <p className=''>{weatherData.weather[0].description.charAt(0).toUpperCase() + weatherData.weather[0].description.slice(1)}
+                  <p className='text-4xl'>{getWeatherEmoji(weatherData.weather[0].description)}</p>    
+                </p>         
               </div>
     
               <div className='bg-blue-50 w-46 h-32 rounded-2xl border-2 border-blue-200 text-center flex items-center justify-center text-xl'>
